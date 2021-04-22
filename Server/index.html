@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Client</title>
+</head>
+<body>
+Hej och välkommen till Snake
+
+<!-- Dette må ligge sist i body -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  let socket = io();
+  console.log(socket);
+
+  socket.on("connect", () => {
+
+  });
+
+  socket.on("test", (data) => {
+      console.log(data);
+  })
+
+</script>
+</body>
+</html>
