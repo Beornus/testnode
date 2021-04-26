@@ -4,23 +4,12 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const fs = require("fs");
 
-const User = require("./js/user.js");
+app.use(express.static('public')); // Public directory
+
+const User = require("./private/User.js");
 
 ///// NETWORKING /////
-
-// Serve files
-fs.readdir("clientjs", function (err, files) {
-    if(err) {
-        return console.log('Unable to scan directory: '+err);
-    }
-    for(const filepath of files) {
-        app.get("/clientjs/"+filepath, (req, res) => {
-            res.sendFile(__dirname+"/clientjs/"+filepath);
-        });
-    }
-});
 
 // Serve index file
 app.get('/', (req, res) => {
@@ -31,10 +20,11 @@ let users = {};     // Dictionary of users
 
 // On new connection
 io.on('connection', (socket) => {
-    console.log('a user connected');
 
     // Create a new user on server
     const user = new User();
+
+    console.log("New user connected (ID: "+user.id+")");
 
     // Add new user to dict
     users[user.id] = user;
@@ -47,7 +37,7 @@ io.on('connection', (socket) => {
 
     // On disconnect
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log("User disconnected (ID: "+user.id+")");
         delete users[user.id];
     });
 
@@ -55,7 +45,7 @@ io.on('connection', (socket) => {
 
 // Listen for new connections
 server.listen(3000, () => {
-    console.log('listening on *:3000');
+    console.log('Listening on *:3000');
 });
 
 ///// GAME LOOP /////
@@ -77,16 +67,12 @@ function update() {
 
     ticks++;    // Increment tick counter
 
-    // Get position (TEST)
-    const pos = {
-        x: 100 * Math.sin(ticks * 0.1),
-        y: 100 * Math.cos(ticks * 0.1)
-    };
-
     // https://socket.io/docs/v3/emit-cheatsheet/index.html
-    // Send to all connected clients
-    io.emit("pos", {
-        pos: pos,
+    // Send positions of all connected clients to all connected clients
+    let snakes = [];
+    for(const [uid, user] of Object.entries(users)) snakes.push(user.snake);
+    io.emit("update", {
+        snakes: snakes,
         tick: ticks,
         time: time
     });
