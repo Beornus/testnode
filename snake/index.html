@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Client</title>
+
+  <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      canvas {
+        margin: 0;
+        padding: 0;
+        position: fixed;
+      }
+  </style>
+</head>
+<body>
+<!-- Dette må ligge sist i body -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  ///// SETUP /////
+
+  // Create canvas
+  const canvas = document.createElement("canvas");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  // Get drawing context
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  // Append canvas to body
+  const body = document.getElementsByTagName("body")[0];
+  body.appendChild(canvas);
+
+  // Storing a position sent by server
+  let position = {x: 0, y: 0};
+
+  ///// NETWORKING /////
+  let socket = io();
+
+  // On connection to server
+  socket.on("connect", () => {
+
+  });
+
+  // On "pos" event
+  let lastPosTick = -1;
+  socket.on("pos", (data) => {
+
+    if(data.tick > lastPosTick) {
+      position = data.pos;
+      lastPosTick = data.tick;
+    }
+
+  });
+
+  ///// GAME LOOP /////
+  let last = 0;
+  function frame(timestamp) {
+
+    // Get elapsed time
+    const dt = (timestamp - last) / 1000;
+
+    ///// Do stuff /////
+
+    // Clear canvas
+    ctx.fillStyle = "rgba(0, 0, 0, 1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw a circle at position sent by server
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    const circle = new Path2D();
+    circle.arc(position.x, position.y, 10, 0, 2*Math.PI, false);
+    ctx.fillStyle = "rgba(255, 0, 0, 1)";
+    ctx.fill(circle);
+    ctx.translate( - (canvas.width / 2), - (canvas.height / 2) );
+
+    ////////////////////
+
+    // Get new last time
+    last = timestamp;
+    // Request new frame
+    window.requestAnimationFrame(frame);
+  }
+  // Request the first frame
+  requestAnimationFrame(frame);
+
+</script>
+</body>
+</html>
