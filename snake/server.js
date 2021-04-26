@@ -38,15 +38,11 @@ setInterval(update, (1 / targetTicksPerSecond) * 1000);
 
 function update() {
 
-    // Get elapsed time in nanoseconds
-    const dtNano = Number(process.hrtime.bigint() - last);
-    // Convert to seconds
-    const dt = dtNano / 1_000_000_000;
-    // Get new last time
-    last = process.hrtime.bigint();
+    const dtNano = Number(process.hrtime.bigint() - last);    // Get elapsed time in nanoseconds
+    const dt = dtNano / 1_000_000_000;                              // Convert to seconds
+    last = process.hrtime.bigint();                                 // Get new last time
 
-    // Increment frame counter
-    ticks++;
+    ticks++;    // Increment tick counter
 
     // Get position (TEST)
     const pos = {
