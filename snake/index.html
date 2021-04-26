@@ -5,6 +5,7 @@
 
   <style>
       body {
+        background-color: black;
         margin: 0;
         padding: 0;
       }
@@ -16,70 +17,8 @@
   </style>
 </head>
 <body>
-<!-- Dette må ligge sist i body -->
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  ///// SETUP /////
-
-  // Create canvas
-  const canvas = document.createElement("canvas");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  // Get drawing context
-  const ctx = canvas.getContext("2d");
-  ctx.imageSmoothingEnabled = true;
-  // Append canvas to body
-  const body = document.getElementsByTagName("body")[0];
-  body.appendChild(canvas);
-
-  // Storing a position sent by server
-  let position = {x: 0, y: 0};
-
-  ///// NETWORKING /////
-  let socket = io();
-
-  // On connection to server
-  socket.on("connect", () => {
-
-  });
-
-  let lastPosTick = -1;
-  socket.on("pos", (data) => {
-
-    if(data.tick > lastPosTick) { // If the message is newer than the last recieved
-      position = data.pos;        // Set position
-      lastPosTick = data.tick;    // Set last tick to this message's tick
-    }
-
-  });
-
-  ///// GAME LOOP /////
-  let last = 0;
-  function frame(timestamp) {
-
-    const dt = (timestamp - last) / 1000; // Get elapsed time
-    last = timestamp;                     // Get new last time
-
-    ///// Do stuff /////
-
-    // Clear canvas
-    ctx.fillStyle = "rgba(0, 0, 0, 1)";               // Set context fill color to black
-    ctx.fillRect(0, 0, canvas.width, canvas.height);  // Fill a rectangle covering entire screen
-
-    // Draw a circle at position sent by server
-    ctx.translate(canvas.width / 2, canvas.height / 2);           // Move drawing context to center of screen
-    const circle = new Path2D();                                  // Create path object
-    circle.arc(position.x, position.y, 10, 0, 2*Math.PI, false);  // Draw circle to path object
-    ctx.fillStyle = "rgba(255, 0, 0, 1)";                         // Set context fill color to red
-    ctx.fill(circle);                                             // Fill the circle
-    ctx.translate( - (canvas.width / 2), - (canvas.height / 2) ); // Move drawing context back
-
-    ////////////////////
-
-    window.requestAnimationFrame(frame); // Request new frame
-  }
-  requestAnimationFrame(frame); // Request the first frame
-
-</script>
+  <!-- Dette må ligge sist i body -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/clientjs/index.js" type="module"></script>
 </body>
 </html>
