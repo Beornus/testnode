@@ -34,5 +34,34 @@ class Snake {
     // METHODS
 
 }
+// function to change direction by pressing keys
+function changeDirection(keyCode){
+    switch (keyCode){
+        // left arrow key
+        case 37: {
+            return { x: -1, y: 0};
+        }
+        // down arrow key
+        case 38: {
+            return { x: 0, y: -1};
+        }
+        // right arrow key
+        case 39: {
+            return { x: 1, y: 0};
+        }
+        // up arrow key
+        case 40: {
+            return { x: 0, y: 1};
+        }
+    }
+}
 
-module.exports = Snake;
+function startGame(){
+
+}
+
+module.exports = {
+    Snake,
+    changeDirection,
+    startGame,
+}

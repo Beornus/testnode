@@ -1,6 +1,11 @@
 import { Input } from "./js/Input.js";
 import { Graphics } from "./js/Graphics.js";
 
+// finding elements in the start screen
+const startScreen = document.getElementById('startScreen');
+const playBtn = document.getElementById('playBtn');
+playBtn.addEventListener('click', playGame);
+
 ///// SETUP /////
 
 // Create input event handler
@@ -11,6 +16,29 @@ Graphics.init();
 
 ///// NETWORKING /////
 let socket = io();
+
+let uid;
+
+// Listening to a new game
+socket.on('newplayer', newPlayer);
+socket.on('playgame', playGame);
+
+//function to start a game that will emit a new game and initialize
+function playGame(){
+    socket.emit('playGame');
+    init();
+}
+
+//function
+function newPlayer(id){
+    uid = id;
+}
+
+//function to hide the start screen and show the canvas
+function init(){
+    startScreen.style.display = "none";
+    Graphics.init();
+}
 
 let uid = null;
 

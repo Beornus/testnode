@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const { changeDirection, startGame } = require('./private/Snake');
 
 app.use(express.static('public')); // Public directory
 
@@ -17,8 +18,51 @@ app.get('/', (req, res) => {
 });
 
 let users = {};     // Dictionary of users
+let game = {};      // Dictionary of all games
 
 // On new connection
+io.on('connection', client => {
+    const user = new User();
+    users[user.id] = user;
+
+    client.on('keypressed', keyPressedhandler);
+    client.on('playgame', playGameHandler);
+    client.on('disconnect', disconnectHandler);
+    client.on('getuid', getuidHandler);
+
+    function keyPressedhandler(keyCode){
+        try{
+            keyCode = parseInt(keyCode);
+        } catch(e){
+            console.error(e);
+            return;
+        }
+        const dir = changeDirection(keyCode)
+    }
+
+    function playGameHandler(){
+        console.log("New user connected (ID: "+user.id+")");
+        let boardNumber = 1;
+        users[client.id] = boardNumber;
+        client.emit('boardnumber', boardNumber);
+
+        game[boardNumber] = startGame();
+
+        client.join(boardNumber);
+        client.emit('newplayer');
+    }
+    //function to handle disconnects
+    function disconnectHandler(){
+        console.log("User disconnected (ID: "+user.id+")");
+        delete users[user.id];
+    }
+
+    function getuidHandler(){
+        socket.emit('uid', { id: user.id });
+    }
+});
+
+/*// On new connection
 io.on('connection', (socket) => {
 
     // Create a new user on server
@@ -41,7 +85,7 @@ io.on('connection', (socket) => {
         delete users[user.id];
     });
 
-});
+});*/
 
 // Listen for new connections
 server.listen(3000, () => {
